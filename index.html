@@ -3568,7 +3568,7 @@ function showStatList(category) {
       .filter(e => inB(e.data.lat, e.data.lng))
       .sort((a, b) => (b.data.d||0) - (a.data.d||0))
       .map(e => ({
-        name: e.data.n,
+        name: e.data.name,
         sub: e.data.d + ' MWh/ha·a',
         lat: e.data.lat, lng: e.data.lng,
         marker: e.marker
