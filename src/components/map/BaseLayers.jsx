@@ -1,6 +1,6 @@
 import { Polygon, Tooltip } from 'react-leaflet'
 import { useLayerStore } from '../../store/useLayerStore'
-import { TIEFLAND_PLAIN, TIEFLAND_RHEIN, HOEFF_LOCKER_POLYS } from '../../data/layers'
+import { TIEFLAND_PLAIN, TIEFLAND_RHEIN, HOEFF_LOCKER_POLYS, AKTIONSRAUM } from '../../data/layers'
 
 export default function BaseLayers() {
   const layers = useLayerStore(s => s.layers)
@@ -20,6 +20,17 @@ export default function BaseLayers() {
         pathOptions={{ color:'#d65b5b', weight:2, opacity:.8, fillColor:'#d65b5b', fillOpacity:.12, dashArray:'6,3' }}
       >
         <Tooltip sticky className="ctt">BOWA Rheinland · Kernarbeitsgebiet</Tooltip>
+      </Polygon>
+    )}
+    {layers['aktionsraum'] && (
+      <Polygon
+        positions={AKTIONSRAUM}
+        pathOptions={{ color:'#d65b5b', weight:2, opacity:.9, fillColor:'#d65b5b', fillOpacity:.12, dashArray:'6,3' }}
+      >
+        <Tooltip sticky className="ctt">
+          <strong style={{color:'#d65b5b'}}>BOWA Aktionsraum</strong><br/>
+          <small style={{color:'#8aaac4'}}>Rheinisches Revier — Niederrheinische Bucht</small>
+        </Tooltip>
       </Polygon>
     )}
     {layers['hoeff-locker'] && HOEFF_LOCKER_POLYS.map((p, i) => (

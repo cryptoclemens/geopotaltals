@@ -1,7 +1,11 @@
 import { useState } from 'react'
 
-const SUPABASE_URL = 'https://ixqcktaxdkqnbpkujzqj.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4cWNrdGF4ZGtxbmJwa3VqenFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzOTEyMzgsImV4cCI6MjA1Nzk2NzIzOH0.QD2kXgFZ2SBMsMbPSFqvWlJjPdIuiXFG8UwFWl1LGzo'
+// Original Supabase project (same as v5.43 HTML)
+const SUPABASE_URL = 'https://uqpdnylqlnnifwmziyer.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxcGRueWxxbG5uaWZ3bXppeWVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzgwOTgsImV4cCI6MjA4ODMxNDA5OH0.ttsDjRn8OPEZC_F3Hew_3rv-aCTjvRJpeTdtmTIfUKI'
+const FB_MAIL = 'hello@vencly.com'
+
+const CHIPS = ['UI/Design','Layer-Daten','Performance','Feature-Wunsch','Fehler','Sonstiges']
 
 // Styles replicating original HTML exactly
 const panelStyle = {
@@ -27,15 +31,25 @@ const btnStyle = {
 
 export default function FeedbackModal() {
   const [open, setOpen]       = useState(false)
-  const [name, setName]       = useState('')
-  const [email, setEmail]     = useState('')
   const [message, setMessage] = useState('')
   const [rating, setRating]   = useState(0)
+  const [cats, setCats]       = useState([])
   const [status, setStatus]   = useState('idle')
+
+  function toggleCat(c) {
+    setCats(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
     setStatus('sending')
+    const payload = {
+      page: '/geopotaltals/',
+      stars: rating,
+      categories: cats,
+      message,
+      lang: navigator.language || 'de',
+    }
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/feedback`, {
         method: 'POST',
@@ -45,14 +59,18 @@ export default function FeedbackModal() {
           Authorization: `Bearer ${SUPABASE_KEY}`,
           Prefer: 'return=minimal',
         },
-        body: JSON.stringify({ name, email, message, rating }),
+        body: JSON.stringify(payload),
       })
-      if (!res.ok) throw new Error(res.statusText)
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
       setStatus('ok')
       setTimeout(() => {
-        setOpen(false); setName(''); setEmail(''); setMessage(''); setRating(0); setStatus('idle')
+        setOpen(false)
+        setMessage(''); setRating(0); setCats([]); setStatus('idle')
       }, 1800)
-    } catch {
+    } catch (err) {
+      // Fallback: open mailto
+      const body = encodeURIComponent(`Feedback (${rating}★ / ${cats.join(', ')}): ${message}`)
+      window.open(`mailto:${FB_MAIL}?subject=Geothermie-Atlas Feedback&body=${body}`)
       setStatus('err')
     }
   }
@@ -74,28 +92,48 @@ export default function FeedbackModal() {
             <span style={{color:'#fff',fontWeight:700,fontSize:13}}>✉ Feedback geben</span>
             <button onClick={() => setOpen(false)} style={{background:'none',border:'none',color:'rgba(255,255,255,.6)',fontSize:18,cursor:'pointer',lineHeight:1}}>×</button>
           </div>
-          <form onSubmit={handleSubmit} style={{padding:'16px 18px',display:'flex',flexDirection:'column',gap:10}}>
-            {/* Stars */}
-            <div style={{display:'flex',gap:4,justifyContent:'center'}}>
-              {[1,2,3,4,5].map(s => (
-                <button key={s} type="button" onClick={() => setRating(s)}
-                  style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:s<=rating?'#f0c040':'rgba(255,255,255,.2)',transition:'transform .1s'}}
-                >★</button>
-              ))}
+          {status === 'ok' ? (
+            <div style={{padding:'32px 18px',textAlign:'center'}}>
+              <div style={{fontSize:32,marginBottom:12}}>✓</div>
+              <div style={{fontSize:13,color:'#5bd68a',fontWeight:600}}>Feedback gesendet – vielen Dank!</div>
             </div>
-            <input value={name} onChange={e=>setName(e.target.value)}
-              placeholder="Name (optional)" style={inputStyle} />
-            <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
-              placeholder="E-Mail (optional)" style={inputStyle} />
-            <textarea value={message} onChange={e=>setMessage(e.target.value)}
-              placeholder="Ihr Feedback…" required rows={4}
-              style={{...inputStyle, resize:'none'}} />
-            {status==='ok'  && <div style={{fontSize:11,color:'#5bd68a',textAlign:'center'}}>✓ Feedback gesendet – vielen Dank!</div>}
-            {status==='err' && <div style={{fontSize:11,color:'#d65b5b',textAlign:'center'}}>✗ Fehler beim Senden. Nochmals versuchen.</div>}
-            <button type="submit" disabled={status==='sending'||status==='ok'} style={{...btnStyle,opacity:status==='sending'||status==='ok'?.5:1}}>
-              {status==='sending'?'Sende…':'Absenden →'}
-            </button>
-          </form>
+          ) : (
+            <form onSubmit={handleSubmit} style={{padding:'16px 18px',display:'flex',flexDirection:'column',gap:10}}>
+              {/* Stars */}
+              <div style={{display:'flex',gap:4,justifyContent:'center'}}>
+                {[1,2,3,4,5].map(s => (
+                  <button key={s} type="button" onClick={() => setRating(s)}
+                    style={{background:'none',border:'none',fontSize:20,cursor:'pointer',
+                      color:s<=rating?'#f0c040':'rgba(255,255,255,.2)',transition:'transform .1s'}}
+                  >★</button>
+                ))}
+              </div>
+              {/* Category chips */}
+              <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                {CHIPS.map(c => (
+                  <button key={c} type="button" onClick={() => toggleCat(c)}
+                    style={{
+                      padding:'3px 9px', borderRadius:12, fontSize:10, cursor:'pointer',
+                      border:`1px solid ${cats.includes(c) ? '#5bafd6' : 'rgba(91,175,214,.25)'}`,
+                      background: cats.includes(c) ? 'rgba(91,175,214,.2)' : 'transparent',
+                      color: cats.includes(c) ? '#ddeeff' : '#7a9ab8',
+                    }}
+                  >{c}</button>
+                ))}
+              </div>
+              <textarea value={message} onChange={e=>setMessage(e.target.value)}
+                placeholder="Ihr Feedback…" required rows={4}
+                style={{...inputStyle, resize:'none'}} />
+              {status==='err' && (
+                <div style={{fontSize:10,color:'#e8a857',textAlign:'center'}}>
+                  Supabase nicht erreichbar — E-Mail-Fallback geöffnet.
+                </div>
+              )}
+              <button type="submit" disabled={status==='sending'} style={{...btnStyle,opacity:status==='sending'?.6:1}}>
+                {status==='sending'?'Sende…':'Absenden →'}
+              </button>
+            </form>
+          )}
         </div>
       )}
     </>

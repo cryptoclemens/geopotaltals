@@ -1,23 +1,31 @@
 import { create } from 'zustand'
 
 const DEFAULT_LAYERS = {
+  // Basisdaten
   'tiefland-plain':  true,
   'tiefland-rhein':  true,
-  'hoeff-locker':    true,
-  'hoeff-fest1':     true,
-  'hoeff-fest2':     true,
+  'aktionsraum':     true,
+  // Aquifer-Systeme
   'aq-niederrhein':  true,
   'aq-norddeutsch':  true,
   'aq-molasse':      true,
   'aq-oberrhein':    true,
-  'geo-egdi':        true,
+  // Geothermie-Höffigkeit (WMS)
+  'geo-egdi':        false,
   'geo-bgr':         true,
   'geo-huek250':     true,
-  'waerme-nrw':      false,
-  'waerme-wms':      false,
-  'waerme-bbsr':     false,
-  'fw-cities':       true,
-  'heat-sources':    true,
+  // (Ab-)Wärmeproduzenten
+  'heat-dc':         true,
+  'heat-pp':         false,
+  'heat-waste':      false,
+  'heat-steel':      false,
+  'heat-abw':        false,
+  // Fernwärme-Märkte
+  'fw-cities-hi':    true,
+  'fw-cities-mid':   true,
+  'fw-cities-lo':    true,
+  // Legacy (Höffigkeit polygons)
+  'hoeff-locker':    false,
 }
 
 export const useLayerStore = create((set, get) => ({
