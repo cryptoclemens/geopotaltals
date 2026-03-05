@@ -1,150 +1,106 @@
+import { useState } from 'react'
 import Ortssuche from './Ortssuche'
-import LayerGroup, { SubItem } from './LayerGroup'
+import LayerGroup, { SubItem, AqChips } from './LayerGroup'
+
+const SOURCES = [
+  { color:'#5bafd6', name:'BGR Geologie (WMS)', desc:'GÜK200 · IGME5000 · HÜK250', type:'WMS' },
+  { color:'#4ecdc4', name:'BOWA Aquifer-Atlas', desc:'Tiefenaquifer-Potenziale', type:'Intern' },
+  { color:'#f0c040', name:'OpenStreetMap', desc:'Fernwärme-Netze · Wärmequellen', type:'OSM' },
+]
 
 export default function Sidebar() {
+  const [srcOpen, setSrcOpen] = useState(false)
+
   return (
-    <aside
-      className="w-[260px] flex-shrink-0 h-screen flex flex-col overflow-hidden"
-      style={{
-        background: 'var(--bg1)',
-        borderRight: '1px solid var(--border)',
-      }}
-    >
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-[var(--border)]">
-        <div className="text-[11px] font-bold text-[var(--accent)] uppercase tracking-widest">
-          BOWA
-        </div>
-        <div className="text-[9px] text-[var(--muted)] leading-tight mt-0.5">
-          Geothermie-Potential-Atlas
-        </div>
+    <div id="side">
+      {/* Ortssuche */}
+      <div className="side-section">
+        <h3>Ortssuche</h3>
+        <Ortssuche />
       </div>
 
-      {/* Ortssuche */}
-      <Ortssuche />
+      {/* Layer groups */}
+      <div className="side-layers">
+        <div className="side-layers-title">Layer</div>
 
-      {/* Layer Panel */}
-      <div className="flex-1 overflow-y-auto px-2 py-2 text-[var(--text)]">
-        <div className="text-[9px] uppercase tracking-widest text-[var(--muted)] px-1 mb-2">
-          Layer
-        </div>
-
-        {/* Basis-Daten */}
         <LayerGroup
           id="basis"
           label="Basis-Daten"
-          color="#5bafd6"
+          dotColor="#5bafd6"
+          groupKeys={['tiefland-plain','tiefland-rhein','hoeff-locker']}
           defaultOpen={true}
         >
-          <SubItem
-            layerKey="tiefland-plain"
-            label="Tiefland-Gürtel (Norddeutschland)"
-            color="#5bafd6"
-          />
-          <SubItem
-            layerKey="tiefland-rhein"
-            label="BOWA Rheinland (Kerngebiet)"
-            color="#d65b5b"
-          />
-          <SubItem
-            layerKey="hoeff-locker"
-            label="Höffigkeit Lockergestein"
-            color="#5bd6c8"
-          />
+          <SubItem layerKey="tiefland-plain" label="Tiefland-Gürtel" dotColor="#5bafd6" />
+          <SubItem layerKey="tiefland-rhein" label="BOWA Rheinland" dotColor="#d65b5b" />
+          <SubItem layerKey="hoeff-locker"   label="Höffigkeit Lockergestein" dotColor="#5bd6c8" />
         </LayerGroup>
 
-        {/* Aquifer-Systeme */}
         <LayerGroup
-          id="aquifer"
+          id="aq"
           label="Aquifer-Systeme"
-          color="#4ecdc4"
+          dotColor="#4ecdc4"
+          dotShape="circle"
+          groupKeys={['aq-niederrhein','aq-norddeutsch','aq-molasse','aq-oberrhein']}
           defaultOpen={true}
         >
-          <SubItem
-            layerKey="aq-niederrhein"
-            label="Niederrhein-Aquifer"
-            color="#4ecdc4"
-            badge="⭐"
-          />
-          <SubItem
-            layerKey="aq-norddeutsch"
-            label="Norddeutscher Aquifer"
-            color="#5bafd6"
-          />
-          <SubItem
-            layerKey="aq-molasse"
-            label="Malmkarst / Molasse"
-            color="#f0c040"
-          />
-          <SubItem
-            layerKey="aq-oberrhein"
-            label="Buntsandstein Oberrhein"
-            color="#e8a857"
-          />
+          <AqChips />
         </LayerGroup>
 
-        {/* Geologie WMS */}
         <LayerGroup
           id="geo"
-          label="Geologie (WMS)"
-          color="#a78bfa"
+          label="Geothermie (WMS)"
+          dotColor="#a78bfa"
+          dotShape="square"
+          groupKeys={['geo-egdi','geo-bgr','geo-huek250']}
           defaultOpen={false}
         >
-          <SubItem
-            layerKey="geo-egdi"
-            label="IGME5000 Geologie Europa"
-            color="#a78bfa"
-            dot="square"
-          />
-          <SubItem
-            layerKey="geo-bgr"
-            label="GÜK200 Geologie"
-            color="#c4b5fd"
-            dot="square"
-          />
-          <SubItem
-            layerKey="geo-huek250"
-            label="HÜK250 Hydrogeologie"
-            color="#7dd3fc"
-            dot="square"
-          />
+          <SubItem layerKey="geo-egdi"    label="IGME5000 Geologie Europa"  dotColor="#a78bfa" dotShape="square" badge="WMS" />
+          <SubItem layerKey="geo-bgr"     label="GÜK200 Geologie"           dotColor="#c4b5fd" dotShape="square" badge="WMS" />
+          <SubItem layerKey="geo-huek250" label="HÜK250 Hydrogeologie"      dotColor="#7dd3fc" dotShape="square" badge="WMS" />
         </LayerGroup>
 
-        {/* Wärmequellen */}
         <LayerGroup
           id="waerme"
           label="Wärmequellen"
-          color="#f97316"
+          dotColor="#f97316"
+          dotShape="circle"
+          groupKeys={['heat-sources']}
           defaultOpen={false}
         >
-          <SubItem
-            layerKey="heat-sources"
-            label="Wärmequellen (alle)"
-            color="#f97316"
-          />
+          <SubItem layerKey="heat-sources" label="Wärmequellen (alle)" dotColor="#f97316" dotShape="circle" />
         </LayerGroup>
 
-        {/* Städte */}
         <LayerGroup
           id="cities"
           label="Referenzstädte"
-          color="#94a3b8"
+          dotColor="#94a3b8"
+          dotShape="circle"
+          groupKeys={['fw-cities']}
           defaultOpen={false}
         >
-          <SubItem
-            layerKey="fw-cities"
-            label="Fernwärme-Städte"
-            color="#94a3b8"
-          />
+          <SubItem layerKey="fw-cities" label="Fernwärme-Städte" dotColor="#94a3b8" dotShape="circle" />
         </LayerGroup>
       </div>
 
-      {/* Footer */}
-      <div className="px-3 py-2 border-t border-[var(--border)]">
-        <div className="text-[9px] text-[var(--muted)] text-center">
-          © BOWA Geothermie · {new Date().getFullYear()}
+      {/* Sources panel */}
+      <div id="sources-panel" className={srcOpen ? '' : 'collapsed'}>
+        <h3 onClick={() => setSrcOpen(o => !o)}>
+          <span>Quellen</span>
+          <span style={{fontSize:'9px',opacity:.6}}>{srcOpen ? '▾' : '▸'}</span>
+        </h3>
+        <div className="src-scroll">
+          {SOURCES.map(s => (
+            <div className="src-row" key={s.name}>
+              <div className="src-dot" style={{background:s.color}} />
+              <div className="src-text">
+                <div className="src-name">{s.name}</div>
+                <div className="src-desc">{s.desc}</div>
+                <span className="src-type">{s.type}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-    </aside>
+    </div>
   )
 }

@@ -20,8 +20,7 @@ export default function MapView() {
       minZoom={5}
       maxZoom={14}
       zoomControl={false}
-      className="flex-1 w-full"
-      style={{ height: '100%' }}
+      style={{ width: '100%', height: '100%' }}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

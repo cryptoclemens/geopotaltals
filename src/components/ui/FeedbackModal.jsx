@@ -3,13 +3,35 @@ import { useState } from 'react'
 const SUPABASE_URL = 'https://ixqcktaxdkqnbpkujzqj.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4cWNrdGF4ZGtxbmJwa3VqenFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzOTEyMzgsImV4cCI6MjA1Nzk2NzIzOH0.QD2kXgFZ2SBMsMbPSFqvWlJjPdIuiXFG8UwFWl1LGzo'
 
+// Styles replicating original HTML exactly
+const panelStyle = {
+  position:'fixed', top:'50%', left:'50%', transform:'translate(-50%,-50%)',
+  width:340, zIndex:5000,
+  background:'#0f1d35', border:'1px solid rgba(90,175,214,0.25)',
+  borderRadius:12, overflow:'hidden', boxShadow:'0 16px 48px rgba(0,0,0,.7)',
+}
+const overlayStyle = {
+  position:'fixed', inset:0, zIndex:4900, background:'rgba(0,0,0,.55)',
+}
+const inputStyle = {
+  width:'100%', background:'rgba(22,38,64,.85)',
+  border:'1px solid rgba(91,175,214,0.18)', borderRadius:6,
+  padding:'7px 10px', color:'#ddeeff', fontSize:11,
+  outline:'none', fontFamily:'inherit',
+}
+const btnStyle = {
+  width:'100%', padding:'8px 0', borderRadius:6, border:'none',
+  background:'linear-gradient(135deg,#1d6a9e,#2a8ab8)',
+  color:'#fff', fontSize:12, fontWeight:600, cursor:'pointer',
+}
+
 export default function FeedbackModal() {
   const [open, setOpen]       = useState(false)
   const [name, setName]       = useState('')
   const [email, setEmail]     = useState('')
   const [message, setMessage] = useState('')
   const [rating, setRating]   = useState(0)
-  const [status, setStatus]   = useState('idle') // idle | sending | ok | err
+  const [status, setStatus]   = useState('idle')
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -28,8 +50,7 @@ export default function FeedbackModal() {
       if (!res.ok) throw new Error(res.statusText)
       setStatus('ok')
       setTimeout(() => {
-        setOpen(false)
-        setName(''); setEmail(''); setMessage(''); setRating(0); setStatus('idle')
+        setOpen(false); setName(''); setEmail(''); setMessage(''); setRating(0); setStatus('idle')
       }, 1800)
     } catch {
       setStatus('err')
@@ -38,112 +59,41 @@ export default function FeedbackModal() {
 
   return (
     <>
-      {/* Pill button – bottom center */}
-      <button
-        onClick={() => setOpen(true)}
-        className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[4000]
-                   flex items-center gap-2 px-5 py-2.5 rounded-full
-                   text-white text-[12px] font-semibold shadow-lg
-                   transition-transform hover:scale-105 active:scale-95"
-        style={{ background: 'linear-gradient(135deg, #1d6a9e, #2a8ab8)' }}
-      >
-        <span>💬</span> Feedback
+      {/* Pill button */}
+      <button id="fb-tab" onClick={() => setOpen(true)}>
+        <span>✉</span> Feedback geben
       </button>
 
-      {/* Overlay */}
-      {open && (
-        <div
-          className="fixed inset-0 z-[4900]"
-          style={{ background: 'rgba(0,0,0,0.55)' }}
-          onClick={() => setOpen(false)}
-        />
-      )}
+      {/* Overlay (no backdrop-filter to avoid stacking context bug) */}
+      {open && <div style={overlayStyle} onClick={() => setOpen(false)} />}
 
-      {/* Modal */}
+      {/* Modal panel */}
       {open && (
-        <div
-          className="fixed z-[5000] w-[340px] rounded-2xl shadow-2xl overflow-hidden"
-          style={{
-            top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: '#0f1d35',
-            border: '1px solid rgba(90,175,214,0.25)',
-          }}
-        >
-          {/* Modal header */}
-          <div
-            className="flex items-center justify-between px-5 py-4"
-            style={{ background: 'linear-gradient(90deg,#1d3a5e,#1d6a9e)' }}
-          >
-            <span className="text-white font-bold text-sm">💬 Feedback</span>
-            <button
-              onClick={() => setOpen(false)}
-              className="text-white/60 hover:text-white text-lg leading-none"
-            >×</button>
+        <div style={panelStyle}>
+          <div style={{background:'linear-gradient(90deg,#1d3a5e,#1d6a9e)',padding:'14px 18px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{color:'#fff',fontWeight:700,fontSize:13}}>✉ Feedback geben</span>
+            <button onClick={() => setOpen(false)} style={{background:'none',border:'none',color:'rgba(255,255,255,.6)',fontSize:18,cursor:'pointer',lineHeight:1}}>×</button>
           </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="px-5 py-4 flex flex-col gap-3">
-            {/* Rating stars */}
-            <div className="flex gap-1 justify-center">
+          <form onSubmit={handleSubmit} style={{padding:'16px 18px',display:'flex',flexDirection:'column',gap:10}}>
+            {/* Stars */}
+            <div style={{display:'flex',gap:4,justifyContent:'center'}}>
               {[1,2,3,4,5].map(s => (
-                <button
-                  key={s} type="button"
-                  onClick={() => setRating(s)}
-                  className={`text-xl transition-transform hover:scale-125 ${
-                    s <= rating ? 'text-yellow-400' : 'text-white/20'
-                  }`}
+                <button key={s} type="button" onClick={() => setRating(s)}
+                  style={{background:'none',border:'none',fontSize:20,cursor:'pointer',color:s<=rating?'#f0c040':'rgba(255,255,255,.2)',transition:'transform .1s'}}
                 >★</button>
               ))}
             </div>
-
-            <input
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Name (optional)"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2
-                         text-white text-xs placeholder-white/30 outline-none
-                         focus:border-[#2a8ab8]/60 transition-colors"
-            />
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="E-Mail (optional)"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2
-                         text-white text-xs placeholder-white/30 outline-none
-                         focus:border-[#2a8ab8]/60 transition-colors"
-            />
-            <textarea
-              value={message}
-              onChange={e => setMessage(e.target.value)}
-              placeholder="Ihr Feedback…"
-              required
-              rows={4}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2
-                         text-white text-xs placeholder-white/30 outline-none resize-none
-                         focus:border-[#2a8ab8]/60 transition-colors"
-            />
-
-            {status === 'ok' && (
-              <div className="text-xs text-green-400 text-center py-1">
-                ✓ Feedback gesendet – vielen Dank!
-              </div>
-            )}
-            {status === 'err' && (
-              <div className="text-xs text-red-400 text-center py-1">
-                ✗ Fehler beim Senden. Bitte nochmals versuchen.
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={status === 'sending' || status === 'ok'}
-              className="w-full py-2 rounded-lg text-white text-sm font-semibold
-                         transition-opacity disabled:opacity-50"
-              style={{ background: 'linear-gradient(135deg, #1d6a9e, #2a8ab8)' }}
-            >
-              {status === 'sending' ? 'Sende…' : 'Absenden'}
+            <input value={name} onChange={e=>setName(e.target.value)}
+              placeholder="Name (optional)" style={inputStyle} />
+            <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
+              placeholder="E-Mail (optional)" style={inputStyle} />
+            <textarea value={message} onChange={e=>setMessage(e.target.value)}
+              placeholder="Ihr Feedback…" required rows={4}
+              style={{...inputStyle, resize:'none'}} />
+            {status==='ok'  && <div style={{fontSize:11,color:'#5bd68a',textAlign:'center'}}>✓ Feedback gesendet – vielen Dank!</div>}
+            {status==='err' && <div style={{fontSize:11,color:'#d65b5b',textAlign:'center'}}>✗ Fehler beim Senden. Nochmals versuchen.</div>}
+            <button type="submit" disabled={status==='sending'||status==='ok'} style={{...btnStyle,opacity:status==='sending'||status==='ok'?.5:1}}>
+              {status==='sending'?'Sende…':'Absenden →'}
             </button>
           </form>
         </div>
