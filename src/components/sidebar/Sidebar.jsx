@@ -4,8 +4,10 @@ import LayerGroup, { SubItem, AqChips } from './LayerGroup'
 
 const SOURCES = [
   { color:'#5bafd6', name:'BGR Geologie (WMS)', desc:'GÜK200 · IGME5000 · HÜK250', type:'WMS' },
-  { color:'#4ecdc4', name:'BOWA Aquifer-Atlas', desc:'Tiefenaquifer-Potenziale', type:'Intern' },
+  { color:'#4ecdc4', name:'Aquifer-Atlas', desc:'Tiefenaquifer-Potenziale NW-Europa', type:'Intern' },
   { color:'#f0c040', name:'OpenStreetMap', desc:'Fernwärme-Netze · Wärmequellen', type:'OSM' },
+  { color:'#5bd68a', name:'Fernwärme-Statistik', desc:'BWP · Stadtwerke-Berichte 2023', type:'Statistik' },
+  { color:'#d67c5b', name:'BfEE Abwärme-Atlas', desc:'Industrielle Abwärmepotenziale DE', type:'BfEE' },
 ]
 
 export default function Sidebar() {
@@ -25,14 +27,14 @@ export default function Sidebar() {
 
         <LayerGroup
           id="basis"
-          label="Basis-Daten"
+          label="Basisdaten"
           dotColor="#5bafd6"
-          groupKeys={['tiefland-plain','tiefland-rhein','hoeff-locker']}
+          groupKeys={['tiefland-plain','tiefland-rhein','aktionsraum']}
           defaultOpen={true}
         >
-          <SubItem layerKey="tiefland-plain" label="Tiefland-Gürtel" dotColor="#5bafd6" />
-          <SubItem layerKey="tiefland-rhein" label="BOWA Rheinland" dotColor="#d65b5b" />
-          <SubItem layerKey="hoeff-locker"   label="Höffigkeit Lockergestein" dotColor="#5bd6c8" />
+          <SubItem layerKey="tiefland-plain" label="Lockergestein-Gürtel" dotColor="#5bafd6" />
+          <SubItem layerKey="tiefland-rhein" label="Norddeutscher Aquifer" dotColor="#5bafd6" />
+          <SubItem layerKey="aktionsraum"    label="Aktionsraum" dotColor="#d65b5b" />
         </LayerGroup>
 
         <LayerGroup
@@ -48,37 +50,43 @@ export default function Sidebar() {
 
         <LayerGroup
           id="geo"
-          label="Geothermie (WMS)"
+          label="Geothermie-Höffigkeit"
           dotColor="#a78bfa"
           dotShape="square"
           groupKeys={['geo-egdi','geo-bgr','geo-huek250']}
           defaultOpen={false}
         >
-          <SubItem layerKey="geo-egdi"    label="IGME5000 Geologie Europa"  dotColor="#a78bfa" dotShape="square" badge="WMS" />
-          <SubItem layerKey="geo-bgr"     label="GÜK200 Geologie"           dotColor="#c4b5fd" dotShape="square" badge="WMS" />
-          <SubItem layerKey="geo-huek250" label="HÜK250 Hydrogeologie"      dotColor="#7dd3fc" dotShape="square" badge="WMS" />
+          <SubItem layerKey="geo-egdi"    label="Lockergestein"          dotColor="#5bd6c8" dotShape="square" badge="WMS" />
+          <SubItem layerKey="geo-bgr"     label="Festgestein &lt;1.000 m" dotColor="#c8a840" dotShape="square" badge="WMS" />
+          <SubItem layerKey="geo-huek250" label="Festgestein &gt;1.000 m" dotColor="#b05050" dotShape="square" badge="WMS" />
         </LayerGroup>
 
         <LayerGroup
           id="waerme"
-          label="Wärmequellen"
-          dotColor="#f97316"
+          label="(Ab-)Wärmeproduzenten"
+          dotColor="#d67c5b"
           dotShape="circle"
-          groupKeys={['heat-sources']}
+          groupKeys={['heat-dc','heat-pp','heat-waste','heat-steel','heat-abw']}
           defaultOpen={false}
         >
-          <SubItem layerKey="heat-sources" label="Wärmequellen (alle)" dotColor="#f97316" dotShape="circle" />
+          <SubItem layerKey="heat-dc"    label="Rechenzentren (OSM)"     dotColor="#a87cd6" dotShape="circle" />
+          <SubItem layerKey="heat-pp"    label="Kraftwerke (OSM)"        dotColor="#d67c5b" dotShape="circle" />
+          <SubItem layerKey="heat-waste" label="Müllverbrennung (OSM)"   dotColor="#5bd6c8" dotShape="circle" />
+          <SubItem layerKey="heat-steel" label="Stahlwerke (OSM)"        dotColor="#d6c85b" dotShape="circle" />
+          <SubItem layerKey="heat-abw"   label="Abwärme BfEE"            dotColor="#e8a857" dotShape="square" badge="BfEE" />
         </LayerGroup>
 
         <LayerGroup
           id="cities"
-          label="Referenzstädte"
-          dotColor="#94a3b8"
+          label="Fernwärme-Märkte"
+          dotColor="#5bd68a"
           dotShape="circle"
-          groupKeys={['fw-cities']}
+          groupKeys={['fw-cities-hi','fw-cities-mid','fw-cities-lo']}
           defaultOpen={false}
         >
-          <SubItem layerKey="fw-cities" label="Fernwärme-Städte" dotColor="#94a3b8" dotShape="circle" />
+          <SubItem layerKey="fw-cities-hi"  label="Fernwärme &gt;50%"   dotColor="#5bd68a" dotShape="circle" />
+          <SubItem layerKey="fw-cities-mid" label="Fernwärme 30–50%"    dotColor="#e8a857" dotShape="circle" />
+          <SubItem layerKey="fw-cities-lo"  label="Fernwärme 20–30%"    dotColor="#5bafd6" dotShape="circle" />
         </LayerGroup>
       </div>
 
