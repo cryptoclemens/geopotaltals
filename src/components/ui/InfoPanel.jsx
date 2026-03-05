@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 export default function InfoPanel() {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   if (!open) return (
     <button id="info-toggle" onClick={() => setOpen(true)} title="Strategische Logik">
       💡

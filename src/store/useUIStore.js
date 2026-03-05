@@ -2,8 +2,12 @@ import { create } from 'zustand'
 
 export const useUIStore = create((set, get) => ({
   // ── Password ────────────────────────────────────
-  pwPassed: false,
-  setPwPassed: () => set({ pwPassed: true }),
+  // Check localStorage synchronously so PwScreen never shows for already-authenticated users
+  pwPassed: localStorage.getItem('bowa_pw_ok') === '1',
+  setPwPassed: () => {
+    localStorage.setItem('bowa_pw_ok', '1')
+    set({ pwPassed: true })
+  },
 
   // ── Welcome / Tour ──────────────────────────────
   welcomeSeen: false,

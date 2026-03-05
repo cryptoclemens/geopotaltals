@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useUIStore } from '../../store/useUIStore'
 
 const CORRECT_PW = 'BOWA2026'
-const LS_KEY = 'bowa_pw_ok'
 
 export default function PwScreen() {
   const setPwPassed = useUIStore(s => s.setPwPassed)
@@ -10,17 +9,9 @@ export default function PwScreen() {
   const [error, setError] = useState(false)
   const [fading, setFading] = useState(false)
 
-  // Auto-pass if localStorage has the token
-  useEffect(() => {
-    if (localStorage.getItem(LS_KEY) === '1') {
-      setPwPassed()
-    }
-  }, [setPwPassed])
-
   function submit(e) {
     e.preventDefault()
     if (val.trim() === CORRECT_PW) {
-      localStorage.setItem(LS_KEY, '1')
       setFading(true)
       setTimeout(setPwPassed, 350)
     } else {
