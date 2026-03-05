@@ -25,8 +25,8 @@ export default function PwScreen() {
     <div id="pw-screen" style={{ opacity: fading ? 0 : 1, transition: 'opacity .35s ease' }}>
       <div id="pw-box">
         <div id="pw-logo">
-          <span id="pw-logo-bowa">BOWA</span>
           <span id="pw-logo-geo">Geothermie</span>
+          <span id="pw-logo-sub">Potential-Atlas</span>
         </div>
         <div id="pw-subtitle">Internes Tool — Zugang nur mit Passwort</div>
         <form onSubmit={submit}>

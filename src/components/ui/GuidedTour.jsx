@@ -3,7 +3,7 @@ import { useUIStore } from '../../store/useUIStore'
 const TOUR = [
   {
     title: 'Geologische Ausgangslage',
-    body: 'Die <strong>hellblaue Fläche</strong> zeigt den Norddeutschen Tiefland-Gürtel — ein Band aus Lockergestein von den Niederlanden bis zur Ukraine. Geringere Bohrhärte = niedrigere Erschließungskosten. Das <strong>rote Polygon</strong> markiert BOWAs heutiges Kerngebiet im Rheinischen Revier.',
+    body: 'Die <strong>hellblaue Fläche</strong> zeigt den Norddeutschen Tiefland-Gürtel — ein Band aus Lockergestein von den Niederlanden bis zur Ukraine. Geringere Bohrhärte = niedrigere Erschließungskosten. Das <strong>rote Polygon</strong> markiert das Kernarbeitsgebiet im Rheinischen Revier.',
   },
   {
     title: 'Geothermale Temperaturen (WMS)',

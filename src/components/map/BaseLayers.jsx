@@ -19,7 +19,7 @@ export default function BaseLayers() {
         positions={TIEFLAND_RHEIN}
         pathOptions={{ color:'#d65b5b', weight:2, opacity:.8, fillColor:'#d65b5b', fillOpacity:.12, dashArray:'6,3' }}
       >
-        <Tooltip sticky className="ctt">BOWA Rheinland · Kernarbeitsgebiet</Tooltip>
+        <Tooltip sticky className="ctt">Rheinland · Kernarbeitsgebiet</Tooltip>
       </Polygon>
     )}
     {layers['aktionsraum'] && (
@@ -28,7 +28,7 @@ export default function BaseLayers() {
         pathOptions={{ color:'#d65b5b', weight:2, opacity:.9, fillColor:'#d65b5b', fillOpacity:.12, dashArray:'6,3' }}
       >
         <Tooltip sticky className="ctt">
-          <strong style={{color:'#d65b5b'}}>BOWA Aktionsraum</strong><br/>
+          <strong style={{color:'#d65b5b'}}>Aktionsraum</strong><br/>
           <small style={{color:'#8aaac4'}}>Rheinisches Revier — Niederrheinische Bucht</small>
         </Tooltip>
       </Polygon>

@@ -63,7 +63,7 @@ export default function PrintDialog() {
             <div className="pd-options">
               {[
                 { val: 'viewport', label: 'Aktueller Viewport' },
-                { val: 'aktionsraum', label: 'BOWA Aktionsraum' },
+                { val: 'aktionsraum', label: 'Aktionsraum' },
                 { val: 'nrw', label: 'NRW gesamt' },
               ].map(opt => (
                 <label key={opt.val} className="pd-option">

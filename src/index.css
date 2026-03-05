@@ -357,8 +357,8 @@ header {
 #pw-logo {
   font-size:26px; font-weight:700; letter-spacing:2px; margin-bottom:6px;
 }
-#pw-logo-bowa { color:var(--accent2); }
-#pw-logo-geo  { color:var(--accent); margin-left:8px; font-weight:400; }
+#pw-logo-geo  { color:var(--accent2); font-weight:700; }
+#pw-logo-sub  { color:var(--accent); margin-left:8px; font-weight:400; }
 #pw-subtitle  { font-size:12px; color:var(--muted); margin-bottom:32px; letter-spacing:.3px; }
 #pw-input-wrap { display:flex; gap:0; margin-bottom:10px; border:1px solid rgba(74,144,194,.3); border-radius:10px; overflow:hidden; }
 #pw-input {
@@ -486,8 +486,8 @@ header {
 }
 #loader-box { text-align:center; width:320px; }
 #loader-logo { font-size:28px; font-weight:700; letter-spacing:2px; margin-bottom:4px; }
-#loader-logo-bowa { color:var(--accent2); }
-#loader-logo-geo { color:var(--accent); margin-left:8px; }
+#loader-logo-geo { color:var(--accent2); font-weight:700; }
+#loader-logo-sub { color:var(--accent); margin-left:8px; font-weight:400; }
 #loader-subtitle { font-size:12px; color:var(--muted); margin-bottom:28px; letter-spacing:.5px; }
 #loader-bar-wrap {
   height:4px; background:rgba(255,255,255,.1); border-radius:4px; margin-bottom:12px; overflow:hidden;

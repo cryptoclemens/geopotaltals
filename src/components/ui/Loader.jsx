@@ -29,10 +29,10 @@ export default function Loader() {
     <div id="loader-overlay">
       <div id="loader-box">
         <div id="loader-logo">
-          <span id="loader-logo-bowa">BOWA</span>
           <span id="loader-logo-geo">Geothermie</span>
+          <span id="loader-logo-sub">Potential-Atlas</span>
         </div>
-        <div id="loader-subtitle">Potential-Atlas · Rheinisches Revier</div>
+        <div id="loader-subtitle">Nordeuropäisches Tiefland · Fernwärme · Wärmeproduzenten</div>
         <div id="loader-bar-wrap">
           <div id="loader-fill" style={{ width: `${loaderProgress}%` }} />
         </div>

@@ -24,7 +24,7 @@ export default function Legend() {
         <Row ci sw={{ background:'#d67c5b', width:10, height:10 }} label="Kraftwerk (OSM)" />
         <Row ci sw={{ background:'#5bd6c8', width:10, height:10 }} label="Müllverbrennung (OSM)" />
         <Row ci sw={{ background:'#d6c85b', width:10, height:10 }} label="Stahlwerk (OSM)" />
-        <Row sw={{ background:'rgba(214,91,91,.25)', border:'1px dashed #d65b5b' }} label="BOWA Aktionsraum" />
+        <Row sw={{ background:'rgba(214,91,91,.25)', border:'1px dashed #d65b5b' }} label="Aktionsraum" />
 
         {/* Section: Geothermie-Höffigkeit */}
         <div className="leg-section">Geothermie-Höffigkeit</div>

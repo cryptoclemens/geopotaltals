@@ -17,7 +17,7 @@ export default function InfoPanel() {
         <p>
           Wo <strong>Lockergestein</strong> auf hochentwickelte
           <strong> Fernwärme-Infrastruktur</strong> trifft, entsteht natürlicher
-          Expansionsraum für BOWA-Bohrtechnologie.
+          Expansionsraum für Geothermie-Bohrtechnologie.
         </p>
         <div className="info-insight">
           💡 Überlappungen von <em>WMS-Geothermie</em> + <em>OSM-Wärmeproduzenten</em> +

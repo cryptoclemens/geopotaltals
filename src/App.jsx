@@ -41,7 +41,6 @@ function StatTile({ statKey, label, title }) {
 
 export default function App() {
   const pwPassed = useUIStore(s => s.pwPassed)
-  const loaderDone = useUIStore(s => s.loaderDone)
   const showPrintDialog = useUIStore(s => s.showPrintDialog)
 
   // Show PW screen if not passed
@@ -52,8 +51,8 @@ export default function App() {
       {/* ── Loader (initial) ─────────────────── */}
       <Loader />
 
-      {/* ── Welcome Overlay (first visit) ───── */}
-      {loaderDone && <WelcomeOverlay />}
+      {/* ── Welcome Overlay (first visit) — guard is inside component ── */}
+      <WelcomeOverlay />
 
       {/* ── Guided Tour ─────────────────────── */}
       <GuidedTour />
