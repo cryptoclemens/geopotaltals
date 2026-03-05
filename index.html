@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Geothermie-Potential-Atlas v5.36</title>
+<title>Geothermie-Potential-Atlas v5.37</title>
 
 <style>
 /* Leaflet 1.9.4 — inline */
@@ -979,6 +979,41 @@ svg.leaflet-image-layer.leaflet-interactive path {
   
 /* ── PRINT DIALOG ──────────────────────────────────────────── */
 /* ── Stat-Tile click + Dropdown-Liste ─────────────────────────────── */
+/* ── Ortssuche ───────────────────────────────────────────────────────── */
+#ortssuche-input {
+  width: 100%; box-sizing: border-box;
+  padding: 7px 10px 7px 28px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(91,175,214,.25);
+  border-radius: 7px;
+  color: var(--text, #d8e8ff);
+  font-size: 11px;
+  outline: none;
+  transition: border-color .2s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235bafd6' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 8px center;
+}
+#ortssuche-input:focus { border-color: rgba(91,175,214,.6); }
+#ortssuche-results {
+  position: absolute; left: 0; right: 0; top: 100%;
+  background: #1a2744;
+  border: 1px solid rgba(91,175,214,.25);
+  border-radius: 0 0 7px 7px;
+  z-index: 2000;
+  max-height: 220px; overflow-y: auto;
+  display: none;
+}
+#ortssuche-results.open { display: block; }
+.ort-item {
+  padding: 7px 10px; font-size: 11px; color: #c8ddf0;
+  cursor: pointer; border-bottom: 1px solid rgba(91,175,214,.08);
+}
+.ort-item:last-child { border-bottom: none; }
+.ort-item:hover { background: rgba(91,175,214,.12); }
+.ort-item small { color: #6a8fb0; font-size: 9px; }
+#ortssuche-wrap { position: relative; }
+
 .stat-clickable { cursor: pointer; transition: background .15s, box-shadow .15s; }
 .stat-clickable:hover { background: rgba(91,175,214,.12); box-shadow: 0 0 0 1px rgba(91,175,214,.3) inset; border-radius: 6px; }
 #stat-list-panel {
@@ -1016,6 +1051,79 @@ svg.leaflet-image-layer.leaflet-interactive path {
 .sli-sub { font-size: 10px; color: #7a9ab8; margin-left: 10px; white-space: nowrap; }
 .sli-arrow { font-size: 10px; color: #5bafd6; margin-left: 6px; opacity: .7; }
 .stat-list-empty { padding: 12px 14px; font-size: 11px; color: #8aa8c8; text-align: center; }
+
+/* ── Feedback-Sidebar ────────────────────────────────────────────────── */
+#fb-tab {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%) rotate(90deg);
+  transform-origin: right center;
+  background: linear-gradient(135deg,#1d6a9e,#2a8ab8);
+  color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  padding: 6px 14px; border-radius: 6px 6px 0 0;
+  cursor: pointer; z-index: 4000; user-select: none;
+  box-shadow: -2px 0 10px rgba(0,0,0,.4);
+  transition: background .2s;
+}
+#fb-tab:hover { background: linear-gradient(135deg,#2a7ab8,#3a9ac8); }
+#fb-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 4100;
+}
+#fb-overlay.open { display: block; }
+#fb-panel {
+  position: fixed; right: -360px; top: 0; bottom: 0; width: 340px;
+  background: var(--panel-bg, #1a2744);
+  border-left: 1px solid rgba(91,175,214,.25);
+  box-shadow: -8px 0 32px rgba(0,0,0,.5);
+  z-index: 4200; overflow-y: auto;
+  transition: right .3s cubic-bezier(.4,0,.2,1);
+  padding: 24px 20px 20px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+#fb-panel.open { right: 0; }
+.fb-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none; color: #8aa8c8;
+  font-size: 20px; cursor: pointer; line-height: 1;
+}
+.fb-close:hover { color: #d8e8ff; }
+.fb-title { font-size: 14px; font-weight: 700; color: #d8e8ff; padding-right: 28px; }
+.fb-sub { font-size: 11px; color: #7a9ab8; margin-top: 2px; }
+.fb-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #6a8fb0; margin-bottom: 6px; }
+.fb-stars { display: flex; gap: 6px; }
+.fb-star {
+  font-size: 22px; cursor: pointer; line-height: 1;
+  color: rgba(91,175,214,.25); transition: color .15s, transform .1s;
+}
+.fb-star.active, .fb-star:hover { color: #f0c040; }
+.fb-star:hover { transform: scale(1.2); }
+.fb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.fb-chip {
+  padding: 5px 11px; border-radius: 20px; font-size: 10px; font-weight: 600;
+  border: 1px solid rgba(91,175,214,.3); color: #a8c8e8;
+  cursor: pointer; transition: background .15s, border-color .15s;
+}
+.fb-chip.active { background: rgba(91,175,214,.2); border-color: #5bafd6; color: #d8e8ff; }
+.fb-textarea {
+  width: 100%; box-sizing: border-box; min-height: 90px; resize: vertical;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(91,175,214,.2);
+  border-radius: 7px; padding: 9px 11px; color: #d8e8ff; font-size: 11px;
+  font-family: inherit; outline: none; transition: border-color .2s;
+}
+.fb-textarea:focus { border-color: rgba(91,175,214,.5); }
+.fb-submit {
+  width: 100%; padding: 10px; background: linear-gradient(135deg,#1d6a9e,#2a8ab8);
+  color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: opacity .2s;
+}
+.fb-submit:hover { opacity: .88; }
+.fb-submit:disabled { opacity: .5; cursor: not-allowed; }
+.fb-thanks { text-align: center; padding: 20px 0; }
+.fb-thanks-icon { font-size: 40px; margin-bottom: 10px; }
+.fb-thanks h3 { color: #d8e8ff; font-size: 14px; margin: 0 0 6px; }
+.fb-thanks p { color: #7a9ab8; font-size: 11px; margin: 0 0 16px; }
+.fb-reset { background: none; border: 1px solid rgba(91,175,214,.3); color: #8aa8c8;
+  padding: 7px 18px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+.fb-reset:hover { color: #d8e8ff; border-color: #5bafd6; }
 
 #print-dialog-bg {
   display:none; position:fixed; inset:0;
@@ -1380,7 +1488,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   <div style="display:flex;align-items:center;gap:14px;">
     <a href="https://www.vencly.com" target="_blank" rel="noopener" class="logo-link"><img src="data:image/png;base64,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" class="logo-img" alt="Venclÿ"></a>
     <div class="hdr-title">
-      <h1>Geothermie-Skalierungspotenzial v5.36</h1>
+      <h1>Geothermie-Skalierungspotenzial v5.37</h1>
       <p>Live-Daten · Nordeuropäisches Tiefland · Fernwärme · Wärmeproduzenten</p>
     </div>
   </div>
@@ -1401,6 +1509,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
   <!-- SIDE PANEL -->
   <div id="side">
+    <div class="side-section" style="padding:10px 12px;">
+      <div id="ortssuche-wrap">
+        <input type="text" id="ortssuche-input" placeholder="Ort suchen…" autocomplete="off">
+        <div id="ortssuche-results"></div>
+      </div>
+    </div>
     <div class="side-section" style="overflow-y:auto;flex:1;min-height:0;">
       <h3>Layer-Steuerung</h3>
 
@@ -2404,7 +2518,7 @@ function updateOsmSpinnerSub(text) {
 // Ergebnis wird in sessionStorage gecacht (gueltig fuer Browser-Sitzung).
 // =============================================================================
 async function probeWMSProxy(baseUrl, layerId) {
-  const cacheKey = 'wms_probe_v536_' + layerId;
+  const cacheKey = 'wms_probe_v537_' + layerId;
   const cached = sessionStorage.getItem(cacheKey);
   if (cached !== null) {
     try {
@@ -3083,10 +3197,11 @@ blog('layers[hoeff-locker] aufbauen…');
   .bindTooltip('<div class="ctt"><div class="t-name">Lockergestein-Höffigkeit</div><div class="t-sub">Norddeutsches Tiefland</div><div class="t-row"><span class="t-k">Tiefe</span><span class="t-v">400–2.000 m</span></div><div class="t-row"><span class="t-k">Potenzial</span><span class="t-v" style="color:#5bd6c8">Hoch — günstige Bohrkosten</span></div><div class="t-row"><span class="t-k">Aquifer</span><span class="t-v">Rhaetium, Buntsandstein</span></div><div class="t-row"><span class="t-k">Temp.</span><span class="t-v">25–60°C</span></div></div>',{sticky:true,className:'ctt'}),
   // Niederrheinische Bucht — BOWAs Kernzone
   L.polygon([
-    [50.6,5.8],[51.0,5.8],[51.4,6.2],[51.6,6.5],[51.5,7.2],[51.1,7.0],
-    [50.8,6.8],[50.6,6.4],[50.6,5.8]
+    [50.65,5.85],[51.0,5.85],[51.25,6.05],[51.45,6.30],[51.65,6.50],
+    [51.75,6.65],[51.72,6.85],[51.50,6.85],[51.30,6.80],[51.10,6.75],
+    [50.90,6.65],[50.72,6.45],[50.65,5.85]
   ],{color:'#5bd6c8',weight:1.5,opacity:.9,fillColor:'#5bd6c8',fillOpacity:.28,dashArray:'none'})
-  .bindTooltip('<div class="ctt"><div class="t-name">Lockergestein-Höffigkeit</div><div class="t-sub">Niederrheinische Bucht — BOWA-Kernzone</div><div class="t-row"><span class="t-k">Tiefe</span><span class="t-v">200–1.500 m</span></div><div class="t-row"><span class="t-k">Potenzial</span><span class="t-v" style="color:#5bd6c8">Sehr hoch — aktive Bohrzone</span></div><div class="t-row"><span class="t-k">Aquifer</span><span class="t-v">Kreide, Tertiär</span></div><div class="t-row"><span class="t-k">Temp.</span><span class="t-v">20–45°C</span></div></div>',{sticky:true,className:'ctt'}),
+  .bindTooltip('<div class="ctt"><div class="t-name">Lockergestein-Höffigkeit</div><div class="t-sub">Niederrheinische Bucht — BOWA-Kernzone</div><div class="t-row"><span class="t-k">Tiefe</span><span class="t-v">200–1.500 m</span></div><div class="t-row"><span class="t-k">Potenzial</span><span class="t-v" style="color:#5bd6c8">Sehr hoch — aktive Bohrzone</span></div><div class="t-row"><span class="t-k">Aquifer</span><span class="t-v">Miozäner Mariensand / Hauptterrassensand</span></div><div class="t-row"><span class="t-k">Temp.</span><span class="t-v">20–45°C</span></div></div>',{sticky:true,className:'ctt'}),
   // Polnische Tiefebene
   L.polygon([
     [51.0,14.5],[51.8,14.5],[52.5,15.0],[53.5,15.5],[54.0,17.0],[53.5,19.0],
@@ -3495,6 +3610,8 @@ layers['geo-bgr'].on('tileload',   () => { wmsTileStats['geo-bgr'].ok++;   updat
   initWMSProbes();
 }
 initLayers();
+initOrtssuche();
+initFeedbackSlidebar();
 
 // v5.28: Proxy-Probe sequenziell — verhindert simultane Requests an allorigins → 429
 async function initWMSProbes() {
@@ -3612,6 +3729,58 @@ function showStatList(category) {
   panel.classList.add('open');
 }
 
+// ── Ortssuche (Nominatim) ────────────────────────────────────────────────────
+let _ortTimer = null;
+function initOrtssuche() {
+  const inp = document.getElementById('ortssuche-input');
+  const res = document.getElementById('ortssuche-results');
+  if (!inp || !res) return;
+
+  inp.addEventListener('input', () => {
+    clearTimeout(_ortTimer);
+    const q = inp.value.trim();
+    if (q.length < 2) { res.classList.remove('open'); res.innerHTML = ''; return; }
+    _ortTimer = setTimeout(() => searchOrte(q), 350);
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { res.classList.remove('open'); inp.blur(); }
+  });
+  document.addEventListener('click', e => {
+    if (!inp.contains(e.target) && !res.contains(e.target)) res.classList.remove('open');
+  });
+}
+
+async function searchOrte(q) {
+  const res = document.getElementById('ortssuche-results');
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6&addressdetails=1&accept-language=de`;
+    const data = await fetch(url, {headers:{'Accept-Language':'de'}}).then(r=>r.json());
+    if (!data.length) {
+      res.innerHTML = '<div class="ort-item" style="color:#6a8fb0;">Kein Ergebnis</div>';
+      res.classList.add('open');
+      return;
+    }
+    res.innerHTML = data.map((d,i) => {
+      const main = d.display_name.split(',')[0];
+      const sub  = d.display_name.split(',').slice(1,3).join(',').trim();
+      return `<div class="ort-item" onclick="flyToOrt(${d.lat},${d.lon},'${main.replace(/'/g,"\\'")}')">
+        ${main}<br><small>${sub}</small>
+      </div>`;
+    }).join('');
+    res.classList.add('open');
+  } catch(e) {
+    res.innerHTML = '<div class="ort-item" style="color:#c05050;">Verbindungsfehler</div>';
+    res.classList.add('open');
+  }
+}
+
+function flyToOrt(lat, lng, name) {
+  document.getElementById('ortssuche-results')?.classList.remove('open');
+  const inp = document.getElementById('ortssuche-input');
+  if (inp) inp.value = name;
+  if (map) map.flyTo([parseFloat(lat), parseFloat(lng)], 13, {duration:0.9});
+}
+
 function hideStatList() {
   const panel = document.getElementById('stat-list-panel');
   if (panel) panel.classList.remove('open');
@@ -3641,6 +3810,139 @@ function flyToStatItem(idx) {
   if (item.marker && item.marker.openPopup) {
     setTimeout(() => { try { item.marker.openPopup(); } catch(e){} }, 1000);
   }
+}
+
+// ── Feedback-Sidebar ─────────────────────────────────────────────────────────
+const _FB_URL   = 'https://uqpdnylqlnnifwmziyer.supabase.co';
+const _FB_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxcGRueWxxbG5uaWZ3bXppeWVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzgwOTgsImV4cCI6MjA4ODMxNDA5OH0.ttsDjRn8OPEZC_F3Hew_3rv-aCTjvRJpeTdtmTIfUKI';
+const _FB_MAIL  = 'hello@vencly.com';
+const _FB_CATS  = ['Geologische Daten','Standort-Fehler','Feature-Wunsch','Sonstiges'];
+
+function initFeedbackSlidebar() {
+  // HTML per JS erzeugen
+  const tab = document.createElement('div');
+  tab.id = 'fb-tab';
+  tab.textContent = '✉ Feedback';
+  tab.onclick = () => openFbPanel();
+  document.body.appendChild(tab);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'fb-overlay';
+  overlay.onclick = () => closeFbPanel();
+  document.body.appendChild(overlay);
+
+  const panel = document.createElement('div');
+  panel.id = 'fb-panel';
+  panel.innerHTML = `
+    <button class="fb-close" onclick="closeFbPanel()">×</button>
+    <div id="fb-form-view">
+      <div class="fb-title">Feedback geben</div>
+      <div class="fb-sub">Hilf uns, den Atlas zu verbessern.</div>
+      <div>
+        <div class="fb-label">Bewertung</div>
+        <div class="fb-stars" id="fb-stars">
+          ${[1,2,3,4,5].map(n=>`<span class="fb-star" data-v="${n}" onclick="setFbStar(${n})">★</span>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="fb-label">Kategorie</div>
+        <div class="fb-chips" id="fb-chips">
+          ${_FB_CATS.map(c=>`<span class="fb-chip" onclick="toggleFbChip(this)">${c}</span>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="fb-label">Nachricht (optional)</div>
+        <textarea class="fb-textarea" id="fb-msg" placeholder="Was soll besser werden?"></textarea>
+      </div>
+      <button class="fb-submit" id="fb-submit" onclick="submitFeedback()">Absenden →</button>
+    </div>
+    <div id="fb-thanks-view" class="fb-thanks" style="display:none">
+      <div class="fb-thanks-icon">🙏</div>
+      <h3>Danke für dein Feedback!</h3>
+      <p>Deine Rückmeldung hilft uns, den Geothermie-Atlas weiter zu verbessern.</p>
+      <button class="fb-reset" onclick="resetFbForm()">Weiteres Feedback senden</button>
+    </div>
+  `;
+  document.body.appendChild(panel);
+
+  window._fbStars = 0;
+  window._fbChips = [];
+}
+
+function openFbPanel() {
+  document.getElementById('fb-panel')?.classList.add('open');
+  document.getElementById('fb-overlay')?.classList.add('open');
+}
+function closeFbPanel() {
+  document.getElementById('fb-panel')?.classList.remove('open');
+  document.getElementById('fb-overlay')?.classList.remove('open');
+}
+
+function setFbStar(n) {
+  window._fbStars = n;
+  document.querySelectorAll('.fb-star').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.v) <= n);
+  });
+}
+
+function toggleFbChip(el) {
+  el.classList.toggle('active');
+  window._fbChips = Array.from(document.querySelectorAll('.fb-chip.active')).map(c=>c.textContent);
+}
+
+async function submitFeedback() {
+  const btn = document.getElementById('fb-submit');
+  const msg = document.getElementById('fb-msg')?.value?.trim() || '';
+  const stars = window._fbStars || 0;
+  const cats  = window._fbChips || [];
+  const payload = {
+    page: location.pathname,
+    stars,
+    categories: cats,
+    message: msg,
+    lang: navigator.language || 'de'
+  };
+  btn.disabled = true;
+  btn.textContent = '…';
+  const ok = await saveFeedbackToSupabase(payload);
+  if (ok) {
+    document.getElementById('fb-form-view').style.display = 'none';
+    document.getElementById('fb-thanks-view').style.display = 'block';
+  } else {
+    const body = encodeURIComponent(`Feedback (${stars}★ / ${cats.join(', ')}): ${msg}`);
+    window.open(`mailto:${_FB_MAIL}?subject=Geothermie-Atlas Feedback&body=${body}`);
+    btn.disabled = false;
+    btn.textContent = 'Absenden →';
+  }
+}
+
+async function saveFeedbackToSupabase(payload) {
+  try {
+    const r = await fetch(`${_FB_URL}/rest/v1/feedback`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': _FB_KEY,
+        'Authorization': `Bearer ${_FB_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    });
+    return r.ok;
+  } catch(e) { return false; }
+}
+
+function resetFbForm() {
+  window._fbStars = 0;
+  window._fbChips = [];
+  document.querySelectorAll('.fb-star').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.fb-chip').forEach(c => c.classList.remove('active'));
+  const msg = document.getElementById('fb-msg');
+  if (msg) msg.value = '';
+  const btn = document.getElementById('fb-submit');
+  if (btn) { btn.disabled = false; btn.textContent = 'Absenden →'; }
+  document.getElementById('fb-form-view').style.display = 'block';
+  document.getElementById('fb-thanks-view').style.display = 'none';
 }
 
 function printPotentiale() { showPrintDialog(); }
@@ -3678,14 +3980,24 @@ function executePrint() {
 
   // Geologische Einschätzung basierend auf Koordinaten (grobe Heuristik)
   function geoHint(lat, lng) {
-    // NRW / Niederrhein Lockergestein-Gürtel
-    if (lat >= 50.4 && lat <= 52.3 && lng >= 5.5 && lng <= 9.0) return '🟢 Lockergestein';
-    // Norddeutsches Tiefland
-    if (lat >= 52.0 && lng >= 8.0 && lng <= 14.0)                return '🟢 Lockergestein';
-    // Oberrhein-Graben
-    if (lat >= 47.5 && lat <= 49.5 && lng >= 7.0 && lng <= 9.0)  return '🟢 Lockergestein';
-    // München / Molasse-Becken (Tiefengeothermie)
-    if (lat >= 47.5 && lat <= 49.5 && lng >= 10.0 && lng <= 13.5) return '🔵 Molasse-Becken';
+    // ── Ruhrgebiet: karbonisches Festgestein (Priorität vor NRW-Check) ──────
+    if (lat >= 51.2 && lat <= 51.75 && lng >= 6.85 && lng <= 7.85)
+      return '⚪ Festgestein (Ruhrgebiet / Karbon)';
+    // ── Niederrheinische Bucht: Lockergestein, BOWA-Kernzone ────────────────
+    if (lat >= 50.5 && lat <= 51.8 && lng >= 5.5 && lng <= 6.85)
+      return '🟢 Lockergestein (Niederrheinische Bucht)';
+    // ── Kölner Bucht / südliche Verlängerung ────────────────────────────────
+    if (lat >= 50.5 && lat <= 51.1 && lng >= 6.5 && lng <= 7.1)
+      return '🟢 Lockergestein (Kölner Bucht)';
+    // ── Norddeutsches Tiefland ──────────────────────────────────────────────
+    if (lat >= 52.0 && lng >= 6.0 && lng <= 14.0)
+      return '🟢 Lockergestein (Norddeutsches Tiefland)';
+    // ── Oberrhein-Graben ────────────────────────────────────────────────────
+    if (lat >= 47.5 && lat <= 49.5 && lng >= 7.0 && lng <= 9.0)
+      return '🟢 Lockergestein (Oberrhein)';
+    // ── München / Molasse-Becken ─────────────────────────────────────────────
+    if (lat >= 47.5 && lat <= 49.5 && lng >= 10.0 && lng <= 13.5)
+      return '🔵 Molasse-Becken';
     return '⚪ Festgestein / prüfen';
   }
 
@@ -3878,7 +4190,7 @@ function executePrint() {
     ${secHtml('🏭 BfEE Abwärme-Register (§ 17 EnEfG)', '#d65b5b', bfeeRows)}
     ${osmSections}
     <div class="footer">
-      <span>Geothermie-Potential-Atlas v5.36 · © BOWA</span>
+      <span>Geothermie-Potential-Atlas v5.37 · © BOWA</span>
       <span>Quellen: OpenStreetMap, BfEE/BAFA, BGR, AGFW/Euroheat · ⚪ Geologie-Hinweis: grobe Heuristik, Karte beachten</span>
     </div>`;
 
