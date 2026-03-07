@@ -12,6 +12,7 @@ import PwScreen from './components/ui/PwScreen'
 import WelcomeOverlay from './components/ui/WelcomeOverlay'
 import GuidedTour from './components/ui/GuidedTour'
 import { useUIStore } from './store/useUIStore'
+import { FW_CITIES } from './data/fwCities'
 
 // Injected at build time via vite.config.js → define: { __APP_VERSION__ }
 // Bump package.json version for each release
@@ -25,8 +26,18 @@ function StatTile({ statKey, label, title }) {
   const val = statCounts[statKey]
 
   function handleClick() {
-    // Map stat key to heat layer key
-    const layerMap = { dc: 'heat-dc', pp: 'heat-pp', abw: 'heat-abw', fw: null }
+    if (statKey === 'fw') {
+      // FW cities come from static data — filter by viewport bounds
+      const bounds = window._map?.getBounds()
+      const cities = bounds
+        ? FW_CITIES.filter(c => c.dh >= 20 && bounds.contains([c.lat, c.lng]))
+        : FW_CITIES.filter(c => c.dh >= 20)
+      const items = cities.map(c => ({ name: c.n, lat: c.lat, lng: c.lng, tags: { operator: c.op } }))
+      showStatList('fw', items)
+      return
+    }
+    // OSM heat sources
+    const layerMap = { dc: 'heat-dc', pp: 'heat-pp', abw: 'heat-abw' }
     const layerKey = layerMap[statKey]
     const items = layerKey ? (heatMarkers[layerKey] || []) : []
     showStatList(statKey, items)
