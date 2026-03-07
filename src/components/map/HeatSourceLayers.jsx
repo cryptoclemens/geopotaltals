@@ -41,6 +41,18 @@ const HEAT_CONFIGS = [
     label: 'Stahlwerk',
     query: (bbox) => `[out:json][timeout:15][bbox:${bbox}];(nwr["industrial"="steelworks"];nwr["man_made"="works"]["product"="steel"];nwr["landuse"="industrial"]["industrial"="steel"];);out center tags;`,
   },
+  {
+    key: 'heat-abw',
+    color: '#a85bd6',
+    icon: '♨️',
+    label: 'Industrieabwärme',
+    query: (bbox) => `[out:json][timeout:20][bbox:${bbox}];(nwr["industrial"="refinery"];nwr["industrial"="chemical_plant"];nwr["industrial"="paper_mill"];nwr["industrial"="glass"];nwr["man_made"="works"]["product"~"cement|glass|paper|aluminium|aluminum|chemicals|pharmaceutical|rubber|plastic|sugar|fertilizer"];nwr["landuse"="industrial"]["man_made"="works"]["operator"];);out center tags;`,
+    filter: (el) => {
+      // Exclude very generic/unnamed industrial areas
+      const t = el.tags || {}
+      return !!(t.name || t.operator || t.product)
+    },
+  },
 ]
 
 function getCenter(el) {

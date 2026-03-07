@@ -100,12 +100,14 @@ export const WMS_LAYERS = {
     url: 'https://www.gis-idmz.nrw.de/arcgis/services/stba/zensusatlas_energie_100m/MapServer/WMSServer',
     params: { layers: '0', format: 'image/png', transparent: true, version: '1.3.0' },
     label: 'Zensus 2022: Heizungsart (100m)', opacity: 0.7,
+    minZoom: 12,  // MaxScaleDenominator 68247 ≈ 1:68.000 → Zoom 12–13
     attribution: '© Statistisches Bundesamt (Destatis) / IT.NRW, Zensus 2022',
   },
   'waerme-bbsr': {
     url: 'https://www.gis-idmz.nrw.de/arcgis/services/stba/zensusatlas_energie_100m/MapServer/WMSServer',
     params: { layers: '1', format: 'image/png', transparent: true, version: '1.3.0' },
     label: 'Zensus 2022: Energieträger Heizung (100m)', opacity: 0.7,
+    minZoom: 12,
     attribution: '© Statistisches Bundesamt (Destatis) / IT.NRW, Zensus 2022',
   },
 }

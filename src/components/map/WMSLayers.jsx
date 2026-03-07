@@ -75,6 +75,7 @@ function WMSLayer({ id, wmsConfig }) {
         attribution: wmsConfig.attribution       || `© WMS · ${id}`,
         opacity:     wmsConfig.opacity           ?? 0.6,
         crossOrigin: false,
+        ...(wmsConfig.minZoom ? { minZoom: wmsConfig.minZoom } : {}),
       })
 
       layer.on('tileload', () => setWmsBadge(id, 'live'))

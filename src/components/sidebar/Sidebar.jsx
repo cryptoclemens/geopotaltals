@@ -79,10 +79,10 @@ export default function Sidebar() {
             <WmsBadge layerKey="geo-huek250" />
           </SubItem>
           <div className="leg-section-label">Zensus 2022</div>
-          <SubItem layerKey="waerme-wms"  label="Heizungsart (100m)"       dotColor="#e8a857" dotShape="square" badge="WMS">
+          <SubItem layerKey="waerme-wms"  label="Heizungsart (ab Zoom 12)"  dotColor="#e8a857" dotShape="square" badge="WMS">
             <WmsBadge layerKey="waerme-wms" />
           </SubItem>
-          <SubItem layerKey="waerme-bbsr" label="Energieträger (100m)"     dotColor="#e8c857" dotShape="square" badge="WMS">
+          <SubItem layerKey="waerme-bbsr" label="Energieträger (ab Zoom 12)" dotColor="#e8c857" dotShape="square" badge="WMS">
             <WmsBadge layerKey="waerme-bbsr" />
           </SubItem>
         </LayerGroup>
