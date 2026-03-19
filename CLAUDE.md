@@ -25,4 +25,4 @@ Der Pre-Push-Hook bumpt die Version automatisch.
 
 - Das Bundle ist minifiziert – Änderungen direkt im Bundle vornehmen (kein Build-System vorhanden)
 - GitHub Pages deployed automatisch von `gh-pages`-Branch
-- Live-URL: `cryptoclemens.github.io/geopotaltals/`
+- Live-URL: `cryptoclemens.github.io/geopotatlas/`
