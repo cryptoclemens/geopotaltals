@@ -1,13 +1,24 @@
 import { useState } from 'react'
 
-// Original Supabase project (same as v5.43 HTML)
+// ── Supabase (Kanal 1) ────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://uqpdnylqlnnifwmziyer.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxcGRueWxxbG5uaWZ3bXppeWVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzgwOTgsImV4cCI6MjA4ODMxNDA5OH0.ttsDjRn8OPEZC_F3Hew_3rv-aCTjvRJpeTdtmTIfUKI'
+
+// ── GitHub feedback.md (Kanal 2) ──────────────────────────────────────────────
+// Fine-grained PAT: Einstellungen → Developer Settings → Fine-grained tokens
+// Berechtigungen: "Contents: Read and write" auf cryptoclemens/geopotatlas
+// WICHTIG: Keinen Admin-Token verwenden – dieser Token ist im Bundle sichtbar!
+const GH_FEEDBACK_TOKEN  = ''   // <-- hier deinen Fine-grained Token eintragen
+const GH_FEEDBACK_REPO   = 'cryptoclemens/geopotatlas'
+const GH_FEEDBACK_BRANCH = 'main'
+const GH_FEEDBACK_FILE   = 'feedback.md'
+
+// ── Mailto-Fallback ───────────────────────────────────────────────────────────
 const FB_MAIL = 'hello@vencly.com'
 
 const CHIPS = ['UI/Design','Layer-Daten','Performance','Feature-Wunsch','Fehler','Sonstiges']
 
-// Styles replicating original HTML exactly
+// ── Styles ────────────────────────────────────────────────────────────────────
 const panelStyle = {
   position:'fixed', top:'50%', left:'50%', transform:'translate(-50%,-50%)',
   width:340, zIndex:5000,
@@ -29,6 +40,76 @@ const btnStyle = {
   color:'#fff', fontSize:12, fontWeight:600, cursor:'pointer',
 }
 
+// ── GitHub Contents API: Eintrag an feedback.md anhängen ──────────────────────
+async function appendToGithubFeedback(entry) {
+  if (!GH_FEEDBACK_TOKEN) return false
+  const apiBase = `https://api.github.com/repos/${GH_FEEDBACK_REPO}/contents/${GH_FEEDBACK_FILE}`
+  const headers = {
+    Authorization: `token ${GH_FEEDBACK_TOKEN}`,
+    Accept: 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json',
+  }
+  try {
+    // 1. Aktuelle Datei + SHA lesen
+    let sha = undefined
+    let existing = ''
+    const getRes = await fetch(`${apiBase}?ref=${GH_FEEDBACK_BRANCH}`, { headers })
+    if (getRes.ok) {
+      const data = await getRes.json()
+      sha = data.sha
+      existing = atob(data.content.replace(/\n/g, ''))
+    }
+
+    // 2. Neuen Eintrag anhängen
+    const ts = new Date().toISOString()
+    const stars = '★'.repeat(entry.stars) + '☆'.repeat(5 - entry.stars)
+    const newBlock = [
+      `## ${ts}`,
+      `**Sterne:** ${stars}`,
+      entry.categories?.length ? `**Kategorien:** ${entry.categories.join(', ')}` : null,
+      `**Nachricht:** ${entry.message.replace(/\n/g, ' ')}`,
+      `**Sprache:** ${entry.lang}`,
+      '---',
+      '',
+    ].filter(l => l !== null).join('\n')
+
+    const newContent = existing ? existing + '\n' + newBlock : newBlock
+
+    // 3. Zurückschreiben
+    const body = {
+      message: `feedback: neuer Eintrag ${ts.slice(0,10)}`,
+      content: btoa(unescape(encodeURIComponent(newContent))),
+      branch: GH_FEEDBACK_BRANCH,
+      ...(sha ? { sha } : {}),
+    }
+    const putRes = await fetch(apiBase, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(body),
+    })
+    return putRes.ok
+  } catch {
+    return false
+  }
+}
+
+// ── Supabase: Feedback-Zeile einfügen ─────────────────────────────────────────
+async function sendToSupabase(payload) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/feedback`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw new Error(`${res.status}`)
+  return true
+}
+
+// ── Komponente ────────────────────────────────────────────────────────────────
 export default function FeedbackModal() {
   const [open, setOpen]       = useState(false)
   const [message, setMessage] = useState('')
@@ -43,32 +124,29 @@ export default function FeedbackModal() {
   async function handleSubmit(e) {
     e.preventDefault()
     setStatus('sending')
+
     const payload = {
-      page: '/geopotaltals/',
+      page: '/geopotatlas/',
       stars: rating,
       categories: cats,
       message,
       lang: navigator.language || 'de',
     }
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/feedback`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-          Prefer: 'return=minimal',
-        },
-        body: JSON.stringify(payload),
-      })
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
+
+    // Beide Kanäle parallel versuchen
+    const [supabaseOk, githubOk] = await Promise.all([
+      sendToSupabase(payload).catch(() => false),
+      appendToGithubFeedback(payload).catch(() => false),
+    ])
+
+    if (supabaseOk || githubOk) {
       setStatus('ok')
       setTimeout(() => {
         setOpen(false)
         setMessage(''); setRating(0); setCats([]); setStatus('idle')
       }, 1800)
-    } catch (err) {
-      // Fallback: open mailto
+    } else {
+      // Beide Kanäle fehlgeschlagen → mailto-Fallback
       const body = encodeURIComponent(`Feedback (${rating}★ / ${cats.join(', ')}): ${message}`)
       window.open(`mailto:${FB_MAIL}?subject=Geothermie-Atlas Feedback&body=${body}`)
       setStatus('err')
@@ -126,7 +204,7 @@ export default function FeedbackModal() {
                 style={{...inputStyle, resize:'none'}} />
               {status==='err' && (
                 <div style={{fontSize:10,color:'#e8a857',textAlign:'center'}}>
-                  Supabase nicht erreichbar — E-Mail-Fallback geöffnet.
+                  Nicht erreichbar — E-Mail-Fallback geöffnet.
                 </div>
               )}
               <button type="submit" disabled={status==='sending'} style={{...btnStyle,opacity:status==='sending'?.6:1}}>
