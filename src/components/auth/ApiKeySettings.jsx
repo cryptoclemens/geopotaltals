@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useAuthStore } from '../../store/useAuthStore'
 
 const PROVIDERS = [
-  { key: 'claude',     label: 'Claude (Anthropic)', placeholder: 'sk-ant-api03-…' },
-  { key: 'perplexity', label: 'Perplexity AI',       placeholder: 'pplx-…' },
+  { key: 'claude',     label: 'Claude',     placeholder: 'sk-ant-api03-…' },
+  { key: 'copilot',    label: 'MS Copilot', placeholder: 'Bearer ey…' },
+  { key: 'perplexity', label: 'Perplexity', placeholder: 'pplx-…' },
 ]
 
 export default function ApiKeySettings({ onClose, isFirstLogin = false }) {
@@ -14,12 +15,19 @@ export default function ApiKeySettings({ onClose, isFirstLogin = false }) {
 
   const [provider, setProvider] = useState(profile?.preferred_provider || 'claude')
   const [key, setKey]           = useState(profile?.claude_api_key || '')
-  const [status, setStatus]     = useState('idle')
+  const [status, setStatus] = useState('idle')
+  const [errMsg, setErrMsg] = useState('')
 
   async function handleSave(e) {
     e.preventDefault()
     setStatus('saving')
-    await saveApiKey(key.trim(), provider)
+    setErrMsg('')
+    const err = await saveApiKey(key.trim(), provider)
+    if (err) {
+      setErrMsg(err.message || 'Speichern fehlgeschlagen.')
+      setStatus('idle')
+      return
+    }
     setStatus('saved')
     setTimeout(() => { setStatus('idle'); if (isFirstLogin) onClose() }, 1200)
   }
@@ -98,10 +106,22 @@ export default function ApiKeySettings({ onClose, isFirstLogin = false }) {
             />
             <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 5 }}>
               Wird verschlüsselt in deinem Profil gespeichert.
-              {provider === 'claude' && <> Hol dir einen Key auf <a href="https://console.anthropic.com"
+              {provider === 'claude'     && <> Key auf <a href="https://console.anthropic.com"
                 target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>console.anthropic.com</a>.</>}
+              {provider === 'copilot'    && <> Token im <a href="https://copilot.microsoft.com"
+                target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>Microsoft Copilot Studio</a> generieren.</>}
+              {provider === 'perplexity' && <> Key auf <a href="https://www.perplexity.ai/settings/api"
+                target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>perplexity.ai/settings/api</a>.</>}
             </div>
           </div>
+
+          {errMsg && (
+            <div style={{
+              marginBottom: 10, padding: '7px 10px', borderRadius: 6, fontSize: 11,
+              background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.3)',
+              color: '#fca5a5', lineHeight: 1.4,
+            }}>{errMsg}</div>
+          )}
 
           <button type="submit" style={{
             width: '100%', padding: '9px 0', borderRadius: 6, border: 'none',
