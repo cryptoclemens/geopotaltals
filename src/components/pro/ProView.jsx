@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react'
 import { useLayerStore } from '../../store/useLayerStore'
-
-const CLAUDE_API_KEY = import.meta.env.VITE_CLAUDE_API_KEY || ''
+import { useAuthStore } from '../../store/useAuthStore'
 
 const EXAMPLE_QUERIES = [
   'Mitteltiefe Geothermie im Lockergestein – potenzielle FW-Abnehmer in NRW',
@@ -46,11 +45,11 @@ Antworte IMMER als valides JSON (kein Markdown, kein Text davor/danach):
   "warning": "Optionaler Hinweis auf Risiken oder fehlende Daten"
 }`
 
-async function callClaude(query) {
+async function callClaude(query, apiKey) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
-      'x-api-key': CLAUDE_API_KEY,
+      'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true',
       'content-type': 'application/json',
@@ -175,13 +174,15 @@ export default function ProView() {
   const [result, setResult] = useState(null)
   const [errMsg, setErrMsg] = useState('')
   const textRef = useRef(null)
+  const profile = useAuthStore(s => s.profile)
+  const apiKey  = profile?.claude_api_key || import.meta.env.VITE_CLAUDE_API_KEY || ''
 
   async function handleSearch() {
     if (!query.trim()) return
-    if (!CLAUDE_API_KEY) { setStatus('no-key'); return }
+    if (!apiKey) { setStatus('no-key'); return }
     setStatus('loading')
     try {
-      const res = await callClaude(query.trim())
+      const res = await callClaude(query.trim(), apiKey)
       setResult(res)
       setStatus('done')
     } catch (e) {
@@ -257,10 +258,9 @@ export default function ProView() {
               borderRadius: 6, padding: '10px 12px', marginBottom: 12, fontSize: 11,
               color: '#fcd34d', lineHeight: 1.6,
             }}>
-              ⚠ Kein Claude API-Key hinterlegt.<br />
+              ⚠ Kein API-Key hinterlegt.<br />
               <span style={{ color: 'var(--muted)' }}>
-                Füge <code>VITE_CLAUDE_API_KEY</code> als GitHub Actions Secret hinzu
-                und merge erneut.
+                Klicke oben rechts auf ⚙ und trage deinen Claude API-Key ein.
               </span>
             </div>
           )}

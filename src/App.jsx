@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import MapView from './components/map/MapView'
 import Sidebar from './components/sidebar/Sidebar'
 import ProView from './components/pro/ProView'
@@ -9,15 +10,15 @@ import OsmSpinner from './components/ui/OsmSpinner'
 import BootLog from './components/ui/BootLog'
 import StatListPanel from './components/ui/StatListPanel'
 import PrintDialog from './components/ui/PrintDialog'
-import PwScreen from './components/ui/PwScreen'
 import WelcomeOverlay from './components/ui/WelcomeOverlay'
 import GuidedTour from './components/ui/GuidedTour'
-import { useState } from 'react'
+import LoginScreen from './components/auth/LoginScreen'
+import ApiKeySettings from './components/auth/ApiKeySettings'
 import { useUIStore } from './store/useUIStore'
+import { useAuthStore } from './store/useAuthStore'
 import { FW_CITIES } from './data/fwCities'
 
 // Injected at build time via vite.config.js → define: { __APP_VERSION__ }
-// Bump package.json version for each release
 // eslint-disable-next-line no-undef
 const VERSION = `v${__APP_VERSION__}`
 
@@ -29,7 +30,6 @@ function StatTile({ statKey, label, title }) {
 
   function handleClick() {
     if (statKey === 'fw') {
-      // FW cities come from static data — filter by viewport bounds
       const bounds = window._map?.getBounds()
       const cities = bounds
         ? FW_CITIES.filter(c => c.dh >= 20 && bounds.contains([c.lat, c.lng]))
@@ -38,7 +38,6 @@ function StatTile({ statKey, label, title }) {
       showStatList('fw', items)
       return
     }
-    // OSM heat sources
     const layerMap = { dc: 'heat-dc', pp: 'heat-pp', abw: 'heat-abw' }
     const layerKey = layerMap[statKey]
     const items = layerKey ? (heatMarkers[layerKey] || []) : []
@@ -54,32 +53,36 @@ function StatTile({ statKey, label, title }) {
 }
 
 export default function App() {
-  const pwPassed = useUIStore(s => s.pwPassed)
   const showPrintDialog = useUIStore(s => s.showPrintDialog)
-  const [view, setView] = useState('map')
+  const [view, setView]           = useState('map')
+  const [showSettings, setShowSettings] = useState(false)
 
-  // Show PW screen if not passed
-  if (!pwPassed) return <PwScreen />
+  const { user, loading, init } = useAuthStore()
+
+  useEffect(() => { init() }, []) // eslint-disable-line
+
+  if (loading) return (
+    <div style={{ position:'fixed', inset:0, background:'#09152a',
+      display:'flex', alignItems:'center', justifyContent:'center',
+      color:'var(--muted)', fontSize:13 }}>
+      ···
+    </div>
+  )
+
+  if (!user) return <LoginScreen />
 
   return (
     <>
-      {/* ── Loader (initial) ─────────────────── */}
       <Loader />
-
-      {/* ── Welcome Overlay (first visit) — guard is inside component ── */}
       <WelcomeOverlay />
-
-      {/* ── Guided Tour ─────────────────────── */}
       <GuidedTour />
 
-      {/* ── Header ─────────────────────────── */}
+      {/* ── Header ── */}
       <header>
         <div className="hdr-left">
-          {/* Vencly Logo */}
           <a href="https://www.vencly.com" target="_blank" rel="noopener" className="logo-link">
             <img src="vencly.png" className="logo-img" alt="Venclÿ" />
           </a>
-          {/* Title */}
           <div className="hdr-title">
             <h1>Geothermie-Skalierungspotenzial {VERSION}</h1>
             <p>Live-Daten · Nordeuropäisches Tiefland · Fernwärme · Wärmeproduzenten</p>
@@ -96,22 +99,24 @@ export default function App() {
           </button>
         </div>
 
-        {/* Stat tiles */}
+        {/* Stat tiles + user button */}
         <div className="hdr-stats">
           <span className="potentiale-label">Potentiale</span>
-          <StatTile statKey="dc"  label="Rechenzentren"  title="Rechenzentren im Ausschnitt" />
+          <StatTile statKey="dc"  label="Rechenzentren"   title="Rechenzentren im Ausschnitt" />
           <StatTile statKey="pp"  label="Kraftwerke/Ind." title="Kraftwerke/Industrie im Ausschnitt" />
-          <StatTile statKey="abw" label="Abwärme (BfEE)" title="BfEE-Abwärmestandorte im Ausschnitt" />
-          <StatTile statKey="fw"  label="FW-Städte >20%" title="Fernwärme-Städte >20% im Ausschnitt" />
+          <StatTile statKey="abw" label="Abwärme (BfEE)"  title="BfEE-Abwärmestandorte im Ausschnitt" />
+          <StatTile statKey="fw"  label="FW-Städte >20%"  title="Fernwärme-Städte >20% im Ausschnitt" />
+          <button className="print-btn-hdr" title="Drucken / Exportieren" onClick={showPrintDialog}>🖨</button>
           <button
             className="print-btn-hdr"
-            title="Drucken / Exportieren"
-            onClick={showPrintDialog}
-          >🖨</button>
+            title={`Eingeloggt als ${user.email}`}
+            onClick={() => setShowSettings(true)}
+            style={{ fontSize: 14 }}
+          >⚙</button>
         </div>
       </header>
 
-      {/* ── Map + overlaid panels ───────────────── */}
+      {/* ── Map + overlaid panels ── */}
       <div id="map-wrap">
         <MapView />
         {view === 'map' ? <Sidebar /> : (
@@ -121,20 +126,18 @@ export default function App() {
         )}
         <InfoPanel />
         <Legend />
-        {/* OSM Spinner */}
         <OsmSpinner />
-        {/* Boot Log */}
         <BootLog />
-        {/* powered by Vencly */}
         <div className="powered-by">
           powered by <a href="https://www.vencly.com" target="_blank" rel="noopener">Venclÿ</a>
         </div>
       </div>
 
-      {/* ── Modals / Overlays ──────────────────── */}
+      {/* ── Modals ── */}
       <FeedbackModal />
       <StatListPanel />
       <PrintDialog />
+      {showSettings && <ApiKeySettings onClose={() => setShowSettings(false)} />}
     </>
   )
 }
