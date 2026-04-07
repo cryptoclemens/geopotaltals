@@ -15,12 +15,19 @@ export default function ApiKeySettings({ onClose, isFirstLogin = false }) {
 
   const [provider, setProvider] = useState(profile?.preferred_provider || 'claude')
   const [key, setKey]           = useState(profile?.claude_api_key || '')
-  const [status, setStatus]     = useState('idle')
+  const [status, setStatus] = useState('idle')
+  const [errMsg, setErrMsg] = useState('')
 
   async function handleSave(e) {
     e.preventDefault()
     setStatus('saving')
-    await saveApiKey(key.trim(), provider)
+    setErrMsg('')
+    const err = await saveApiKey(key.trim(), provider)
+    if (err) {
+      setErrMsg(err.message || 'Speichern fehlgeschlagen.')
+      setStatus('idle')
+      return
+    }
     setStatus('saved')
     setTimeout(() => { setStatus('idle'); if (isFirstLogin) onClose() }, 1200)
   }
@@ -107,6 +114,14 @@ export default function ApiKeySettings({ onClose, isFirstLogin = false }) {
                 target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>perplexity.ai/settings/api</a>.</>}
             </div>
           </div>
+
+          {errMsg && (
+            <div style={{
+              marginBottom: 10, padding: '7px 10px', borderRadius: 6, fontSize: 11,
+              background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.3)',
+              color: '#fca5a5', lineHeight: 1.4,
+            }}>{errMsg}</div>
+          )}
 
           <button type="submit" style={{
             width: '100%', padding: '9px 0', borderRadius: 6, border: 'none',

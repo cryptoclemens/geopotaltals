@@ -35,13 +35,15 @@ export const useAuthStore = create((set, get) => ({
 
   saveApiKey: async (key, provider = 'claude') => {
     const user = get().user
-    if (!user) return
-    const { data } = await supabase
+    if (!user) return null
+    const { data, error } = await supabase
       .from('profiles')
       .upsert({ id: user.id, claude_api_key: key, preferred_provider: provider })
       .select()
       .single()
+    if (error) return error
     set({ profile: data })
+    return null
   },
 
   signOut: async () => {
