@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { useAuthStore } from '../../store/useAuthStore'
 
 const PROVIDERS = [
-  { key: 'claude',     label: 'Claude (Anthropic)', placeholder: 'sk-ant-api03-…' },
-  { key: 'perplexity', label: 'Perplexity AI',       placeholder: 'pplx-…' },
+  { key: 'claude',     label: 'Claude',     placeholder: 'sk-ant-api03-…' },
+  { key: 'copilot',    label: 'MS Copilot', placeholder: 'Bearer ey…' },
+  { key: 'perplexity', label: 'Perplexity', placeholder: 'pplx-…' },
 ]
 
 export default function ApiKeySettings({ onClose, isFirstLogin = false }) {
@@ -98,8 +99,12 @@ export default function ApiKeySettings({ onClose, isFirstLogin = false }) {
             />
             <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 5 }}>
               Wird verschlüsselt in deinem Profil gespeichert.
-              {provider === 'claude' && <> Hol dir einen Key auf <a href="https://console.anthropic.com"
+              {provider === 'claude'     && <> Key auf <a href="https://console.anthropic.com"
                 target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>console.anthropic.com</a>.</>}
+              {provider === 'copilot'    && <> Token im <a href="https://copilot.microsoft.com"
+                target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>Microsoft Copilot Studio</a> generieren.</>}
+              {provider === 'perplexity' && <> Key auf <a href="https://www.perplexity.ai/settings/api"
+                target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>perplexity.ai/settings/api</a>.</>}
             </div>
           </div>
 
