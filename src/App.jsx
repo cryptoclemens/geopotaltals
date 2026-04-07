@@ -1,5 +1,6 @@
 import MapView from './components/map/MapView'
 import Sidebar from './components/sidebar/Sidebar'
+import ProView from './components/pro/ProView'
 import Legend from './components/ui/Legend'
 import InfoPanel from './components/ui/InfoPanel'
 import FeedbackModal from './components/ui/FeedbackModal'
@@ -11,6 +12,7 @@ import PrintDialog from './components/ui/PrintDialog'
 import PwScreen from './components/ui/PwScreen'
 import WelcomeOverlay from './components/ui/WelcomeOverlay'
 import GuidedTour from './components/ui/GuidedTour'
+import { useState } from 'react'
 import { useUIStore } from './store/useUIStore'
 import { FW_CITIES } from './data/fwCities'
 
@@ -54,6 +56,7 @@ function StatTile({ statKey, label, title }) {
 export default function App() {
   const pwPassed = useUIStore(s => s.pwPassed)
   const showPrintDialog = useUIStore(s => s.showPrintDialog)
+  const [view, setView] = useState('map')
 
   // Show PW screen if not passed
   if (!pwPassed) return <PwScreen />
@@ -83,6 +86,16 @@ export default function App() {
           </div>
         </div>
 
+        {/* View tabs */}
+        <div className="hdr-tabs">
+          <button className={`hdr-tab${view==='map' ? ' active' : ''}`} onClick={() => setView('map')}>
+            🗺 Karte
+          </button>
+          <button className={`hdr-tab${view==='pro' ? ' active' : ''}`} onClick={() => setView('pro')}>
+            ✦ Pro
+          </button>
+        </div>
+
         {/* Stat tiles */}
         <div className="hdr-stats">
           <span className="potentiale-label">Potentiale</span>
@@ -101,7 +114,11 @@ export default function App() {
       {/* ── Map + overlaid panels ───────────────── */}
       <div id="map-wrap">
         <MapView />
-        <Sidebar />
+        {view === 'map' ? <Sidebar /> : (
+          <div id="side" style={{ overflowY: 'auto' }}>
+            <ProView />
+          </div>
+        )}
         <InfoPanel />
         <Legend />
         {/* OSM Spinner */}
