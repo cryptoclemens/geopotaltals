@@ -221,7 +221,7 @@ export default function ProView() {
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) handleSearch() }}
-            placeholder="z.B. „Wir bieten mitteltiefe Geothermie im Lockergestein und suchen Stadtwerke in NRW…""
+            placeholder='z.B. „Wir bieten mitteltiefe Geothermie im Lockergestein und suchen Stadtwerke in NRW…"'
             rows={4}
             style={{
               width: '100%', background: 'rgba(255,255,255,.04)',
