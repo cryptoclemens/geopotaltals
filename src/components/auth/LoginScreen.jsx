@@ -3,11 +3,11 @@ import { supabase } from '../../lib/supabase'
 import { useLangStore } from '../../store/useLangStore'
 import { t } from '../../lib/i18n'
 
-export default function LoginScreen() {
+export default function LoginScreen({ initialMode = 'login', onClose }) {
   const lang = useLangStore(s => s.lang)
   const toggleLang = useLangStore(s => s.toggleLang)
 
-  const [mode, setMode]         = useState('login')
+  const [mode, setMode]         = useState(initialMode)
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [name, setName]         = useState('')
@@ -57,10 +57,11 @@ export default function LoginScreen() {
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, background: '#09152a',
+      position: 'fixed', inset: 0,
+      background: onClose ? 'rgba(0,0,0,.7)' : '#09152a',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       zIndex: 9000, fontFamily: 'inherit',
-    }}>
+    }} onClick={onClose ? e => { if (e.target === e.currentTarget) onClose() } : undefined}>
       <div style={{
         width: 360, background: '#0f1d35',
         border: '1px solid rgba(91,175,214,.2)', borderRadius: 14,
@@ -81,13 +82,21 @@ export default function LoginScreen() {
               {t(`login.${mode === 'magic' ? 'magic' : mode === 'signup' ? 'signup' : 'signin'}`, lang)}
             </div>
           </div>
-          <button onClick={toggleLang} style={{
-            background: 'rgba(255,255,255,.06)', border: '1px solid var(--border)',
-            borderRadius: 5, color: 'var(--muted)', fontSize: 11, padding: '4px 8px',
-            cursor: 'pointer', fontFamily: 'inherit', marginTop: 4,
-          }}>
-            {t('lang.toggle', lang)}
-          </button>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button onClick={toggleLang} style={{
+              background: 'rgba(255,255,255,.06)', border: '1px solid var(--border)',
+              borderRadius: 5, color: 'var(--muted)', fontSize: 11, padding: '4px 8px',
+              cursor: 'pointer', fontFamily: 'inherit',
+            }}>
+              {t('lang.toggle', lang)}
+            </button>
+            {onClose && (
+              <button onClick={onClose} style={{
+                background: 'none', border: 'none', color: 'var(--muted)',
+                fontSize: 18, cursor: 'pointer', lineHeight: 1, padding: 0,
+              }}>✕</button>
+            )}
+          </div>
         </div>
 
         {/* Form */}
