@@ -1,5 +1,7 @@
 # Migrationsplan: Geopotatlas → Hetzner Cloud
 
+> **Status:** Planung abgeschlossen — noch nicht begonnen (Stand April 2026)
+
 **Ziel:** GitHub Pages + Supabase (Cloud) ersetzen durch selbst gehosteten Hetzner-VPS  
 **Aktuelle URL:** `cryptoclemens.github.io/geopotatlas/` (Custom Domain: `gpa.vencly.com`)  
 **Ziel-URL:** `gpa.vencly.com` (direkt auf Hetzner)
@@ -110,12 +112,14 @@ docker compose up -d
 
 ### 4.1 `src/lib/supabase.js`
 
+Aktuell sind URL und Key hardcodiert (für GitHub Pages). Auf Env-Variablen umstellen:
+
 ```js
-// Vorher (Supabase Cloud):
+// Vorher (aktuell – hardcodiert für GitHub Pages):
 const SUPABASE_URL = 'https://bcqqdlkttuxmkymrssgz.supabase.co'
 const SUPABASE_KEY = 'eyJhbGci...'
 
-// Nachher (Hetzner):
+// Nachher (Hetzner – über Vite Env-Variablen):
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
 ```
